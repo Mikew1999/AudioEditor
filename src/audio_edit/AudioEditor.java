@@ -12,29 +12,31 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
-
 
 
 public class AudioEditor {
-    String filepath;
+    String filepath, destination;
 
-    public AudioEditor(String filepath) {
+    public AudioEditor(String filepath, String destination) {
         this.filepath = filepath;
+        this.destination = destination;
+    }
+
+    private String removeExtension(String filename) {
+        return (filename.contains(".")) ? filename.substring(0, filename.lastIndexOf('.')) : filename;
     }
 
     public String editAudioFile() {
         try {
             File file = new File(this.filepath);
-            
-            
-            String new_filename = "test_" + UUID.randomUUID() + ".wav";
+            String new_filename = removeExtension(file.getName()) + ".wav";
+            String extension = file.getName().substring(file.getName().length() - 4);
 
-            // if mp3, convert to wav
-            if (file.getName().substring(file.getName().length() - 4).equals(".mp3")) {
-                System.out.println("mp3 detected");
+            // if mp3 / m4a, convert to wav
+            if (extension.equals(".mp3") || extension.equals(".m4a")) {
+                // use ffmpeg to convert file to .wav
                 ProcessBuilder processBuilder = new ProcessBuilder(
-                        System.getProperty("user.dir") + "\\ffmpeg\\ffmpeg", "-i", file.getAbsolutePath(), System.getProperty("user.dir") + "\\" + new_filename);
+                        System.getProperty("user.dir") + "\\ffmpeg\\ffmpeg", "-y", "-i", file.getAbsolutePath(), destination + "\\" + new_filename);
                 processBuilder.redirectErrorStream(true);
                 try {
                     Process process = processBuilder.start();
@@ -43,18 +45,20 @@ public class AudioEditor {
                         return "Failed to convert to wav - FFmpeg returned error code " + exitCode;
                     }
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
                     return "Failed to convert to wav - " + e.getMessage();
                 }
-                file = new File(System.getProperty("user.dir") + "\\" + new_filename);
+                file = new File(destination + "\\" + new_filename);
             }
 
             byte[] bytes = Files.readAllBytes(file.toPath());
             byte[] wavOutout = formatAudioToWav(bytes, TARGET_FORMAT);
             
-            Path path = Paths.get(System.getProperty("user.dir") + "\\" + new_filename);
+            Path path = Paths.get(destination + "\\" + new_filename);
             Files.write(path, wavOutout);
 
         } catch (IOException e) {
+            e.printStackTrace();
             return "Failed to edit file - " + e.getMessage();
         }
         catch (UnsupportedAudioFileException e) {
