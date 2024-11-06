@@ -1,3 +1,0 @@
-- allow multiple files
-- set destination of files
-- export with same name as input file, make unique

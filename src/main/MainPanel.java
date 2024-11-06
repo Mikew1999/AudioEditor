@@ -88,7 +88,7 @@ public class MainPanel extends JPanel implements ActionListener {
                 log.append("Opening: " + filename + "." + newline);
 
                 if (filename.length() < 5) {
-                    log.append("File " + filename + " is invalid");
+                    log.append("File " + filename + " is invalid" + newline);
                 } else {
                     String filepath = file.getAbsolutePath();
                     audioEditor = new AudioEditor(filepath, destination);
