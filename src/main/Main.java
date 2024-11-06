@@ -11,6 +11,8 @@ public class Main {
         window.setResizable(false);
 
         mainPanel = new MainPanel();
+
+        System.out.println(System.getProperty("user.dir"));
         
         window.add(mainPanel);
         window.pack();
